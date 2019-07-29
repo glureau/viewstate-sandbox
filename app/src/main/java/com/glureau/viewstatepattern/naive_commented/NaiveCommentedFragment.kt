@@ -1,24 +1,25 @@
-package com.glureau.viewstatepattern.naive
+package com.glureau.viewstatepattern.naive_commented
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.glureau.viewstatepattern.R
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_main.*
 
-class NaiveFragment : Fragment() {
+class NaiveCommentedFragment : Fragment() {
 
     companion object {
-        fun newInstance() = NaiveFragment()
+        fun newInstance() = NaiveCommentedFragment()
     }
 
-    private val viewModel = NaiveViewModel()
-    private val adapter = NaiveUserAdapter()
+    // TODO: No DI = cannot be easily tested (but UI so no unit test anyway)
+    //  + highly coupled (don't care here, we know why we use Dagger)
+    private val viewModel = NaiveCommentedViewModel()
+    private val adapter = NaiveCommentedUserAdapter()
     private val disposables = CompositeDisposable()
 
     override fun onCreateView(
@@ -30,21 +31,25 @@ class NaiveFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // TODO: Not using savedInstanceState = all values set in the form will be lost on recreation (screen rotation or background activity cleared by Android)
         prepareRegister()
         prepareRecyclerView()
     }
 
     private fun prepareRegister() {
         register.setOnClickListener {
+            // TODO: Manage error cases (i.e. "null" strings or cannot transform to integer) => crash
+            // TODO: Live validation of the business rules (display warning when wrong data)
             val firstName = first_name.editText?.text.toString()
             val lastName = last_name.editText?.text.toString()
-            val age = age?.text.toString().toInt()
+            val age = age.text.toString().toInt()
+            // TODO: Display error when registration fail
             viewModel.registerNewUser(firstName, lastName, age)
         }
     }
 
     private fun prepareRecyclerView() {
-        recycler_view.layoutManager = LinearLayoutManager(context)
         recycler_view.adapter = adapter
         disposables.add(
             viewModel.getAllUsers()

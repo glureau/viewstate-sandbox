@@ -1,6 +1,6 @@
 package com.glureau.viewstatepattern.common.api
 
-import com.glureau.viewstatepattern.domain.User
+import com.glureau.viewstatepattern.common.domain.User
 
 data class UserDto(val f: String, val l: String, val a: Int)
 

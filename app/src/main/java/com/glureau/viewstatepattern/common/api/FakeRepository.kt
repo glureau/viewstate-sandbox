@@ -21,9 +21,8 @@ class FakeRepository {
         if (knownUsers.contains(user)) {
             return Completable.error(IllegalStateException("User already exists"))
         }
-        knownUsers.add(user)
         return when (Random.nextInt(0, 5)) {
-            0, 1, 2 -> Completable.complete().delay(200, TimeUnit.MILLISECONDS)
+            0, 1, 2 -> Completable.complete().delay(200, TimeUnit.MILLISECONDS).doOnComplete { knownUsers.add(user) }
             3 -> Completable.error(IOException("Cannot reach server")).delay(500, TimeUnit.MILLISECONDS)
             else -> Completable.error(CancellationException("Connection reset")).delay(2000, TimeUnit.MILLISECONDS)
         }

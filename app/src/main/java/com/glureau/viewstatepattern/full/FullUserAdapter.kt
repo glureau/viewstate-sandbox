@@ -1,4 +1,4 @@
-package com.glureau.viewstatepattern.naive
+package com.glureau.viewstatepattern.full
 
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +11,7 @@ import com.glureau.viewstatepattern.common.domain.User
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class NaiveUserAdapter : ListAdapter<User, NaiveUserAdapter.UserViewHolder>(UserDiffCallback()) {
+class FullUserAdapter : ListAdapter<User, FullUserAdapter.UserViewHolder>(UserDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val userView = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
@@ -34,5 +34,6 @@ class NaiveUserAdapter : ListAdapter<User, NaiveUserAdapter.UserViewHolder>(User
         override fun areContentsTheSame(oldItem: User, newItem: User) = oldItem == newItem
     }
 
-    data class UserViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer
+    data class UserViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),
+        LayoutContainer
 }
