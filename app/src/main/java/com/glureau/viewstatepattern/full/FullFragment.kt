@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.glureau.viewstatepattern.R
 import com.jakewharton.rxbinding2.widget.RxTextView
@@ -42,8 +41,10 @@ class FullFragment : Fragment() {
     }
 
     private fun prepareRegister() {
-        first_name.editText?.let {
-            disposables.add(RxTextView.textChanges(it)
+        first_name.editText?.let { editText ->
+            disposables.add(RxTextView.textChanges(editText)
+                .skipInitialValue()
+                .filter { it.isNotEmpty() }
                 .debounce(DEBOUNCE_DELAY, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
                 .map { str -> viewModel.validateFirstName(str.toString()) }
                 .subscribe { validation ->
@@ -51,8 +52,10 @@ class FullFragment : Fragment() {
                 })
         }
 
-        last_name.editText?.let {
-            disposables.add(RxTextView.textChanges(it)
+        last_name.editText?.let { editText ->
+            disposables.add(RxTextView.textChanges(editText)
+                .skipInitialValue()
+                .filter { it.isNotEmpty() }
                 .debounce(DEBOUNCE_DELAY, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
                 .map { str -> viewModel.validateLastName(str.toString()) }
                 .subscribe { validation ->
@@ -61,6 +64,8 @@ class FullFragment : Fragment() {
         }
 
         disposables.add(RxTextView.textChanges(age)
+            .skipInitialValue()
+            .filter { it.isNotEmpty() }
             .debounce(DEBOUNCE_DELAY, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .map { str -> viewModel.validateAge(str.toString()) }
             .subscribe { validation ->
@@ -77,16 +82,17 @@ class FullFragment : Fragment() {
                 val ageStr = age.text.toString()
 
                 viewModel.registerNewUser(firstName, lastName, ageStr)
+                    .doOnSubscribe { error_message.text = "" }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
                         first_name.editText?.setText("")
                         last_name.editText?.setText("")
                         age.setText("")
                     }, {
-                        Toast.makeText(context, "Cannot register: ${it.message}", Toast.LENGTH_LONG).show()
+                        error_message.text = "Cannot register: ${it.message}"
                     })
             } else {
-                Toast.makeText(context, "Verify your data before register", Toast.LENGTH_LONG).show()
+                error_message.text = "Verify your data before register"
             }
         }
     }

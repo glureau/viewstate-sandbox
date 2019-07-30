@@ -9,10 +9,12 @@ import java.util.concurrent.TimeUnit
 
 class FullViewModel {
     companion object {
-        val NAME_MIN = 2
-        val NAME_MAX = 20
-        val AGE_MIN = 18
-        val AGE_MAX = 120
+        private const val NAME_MIN = 2
+        private const val NAME_MAX = 20
+        private val NAME_AUTHORIZED_CHARS = Regex("[a-zA-Z]*")
+
+        private const val AGE_MIN = 18
+        private const val AGE_MAX = 120
     }
 
     private val repository = FakeRepository()
@@ -38,15 +40,15 @@ class FullViewModel {
     }
 
     private fun validateName(name: String): NameValidation {
-        if (name.length in NAME_MIN..NAME_MAX) {
-            return NameValidation.OK
-        }
-        return NameValidation.WRONG_LENGTH
+        if (name.length !in NAME_MIN..NAME_MAX) return NameValidation.WRONG_LENGTH
+        if (!NAME_AUTHORIZED_CHARS.matches(name)) return NameValidation.WRONG_CHARS
+        return NameValidation.OK
     }
 
     enum class NameValidation(val errorMessage: String? = null) {
         OK,
-        WRONG_LENGTH("Name length should be at least $NAME_MIN and at max $NAME_MAX")
+        WRONG_LENGTH("Name length should be at least $NAME_MIN and at max $NAME_MAX"),
+        WRONG_CHARS("Name contains bad characters")
     }
 
     enum class AgeValidation(val errorMessage: String? = null) {
