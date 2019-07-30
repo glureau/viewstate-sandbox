@@ -1,9 +1,11 @@
 package com.glureau.viewstatepattern.view_state
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.glureau.viewstatepattern.R
 import com.jakewharton.rxbinding2.view.RxView
@@ -33,32 +35,33 @@ class ViewStateFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        first_name.editText?.let { editText -> viewModel.onFirstNameChanged(RxTextView.textChanges(editText)) }
-        last_name.editText?.let { editText -> viewModel.onLastNameChanged(RxTextView.textChanges(editText)) }
+        viewModel.onFirstNameChanged(first_name.textChanges())
+        viewModel.onLastNameChanged(last_name.textChanges())
         viewModel.onAgeChanged(RxTextView.textChanges(age))
         viewModel.onSubmit(RxView.clicks(register))
 
+        var debugLastState: ViewStateViewModel.ViewState? = null
         viewModel.viewState
             .autoDisposable(scopeProvider)
             .subscribe { state ->
-                if (first_name.editText?.text.toString() != state.firstName) {
-                    first_name.editText?.setText(state.firstName)
-                }
+                first_name.setTextIfDifferent(state.firstName)
                 first_name.error = state.firstNameError
-
-                if (last_name.editText?.text.toString() != state.lastName) {
-                    last_name.editText?.setText(state.lastName)
-                }
+                last_name.setTextIfDifferent(state.lastName)
                 last_name.error = state.lastNameError
-
-                if (age.text.toString() != state.age) {
-                    age.setText(state.age)
-                }
+                age.setTextIfDifferent(state.age)
                 age.error = state.ageError
-
                 error_message.text = state.submitError
-
                 adapter.submitList(state.users)
+
+                debugLastState = state
             }
+
+        recycler_view.adapter = adapter
+
+        // Just a showcase on how easy a view debug can be with this pattern
+        debug.setOnClickListener {
+            Toast.makeText(context, debugLastState.toString(), Toast.LENGTH_LONG).show()
+            Log.e("DEBUG", debugLastState.toString())
+        }
     }
 }

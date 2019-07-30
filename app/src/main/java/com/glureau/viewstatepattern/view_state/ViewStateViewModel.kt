@@ -15,8 +15,6 @@ import java.util.concurrent.TimeUnit
 class ViewStateViewModel {
 
     companion object {
-        private const val DEBOUNCE_DELAY = 200L // ms
-
         private const val NAME_MIN = 2
         private const val NAME_MAX = 20
         private val NAME_AUTHORIZED_CHARS = Regex("[a-zA-Z]*")
@@ -63,7 +61,7 @@ class ViewStateViewModel {
         disposables.add(firstNameObs
             .skipInitialValue()
             .filter { it.isNotEmpty() }
-            .debounce(DEBOUNCE_DELAY, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe { firstName ->
                 currentViewState.copy(
                     firstName = firstName.toString(),
@@ -75,7 +73,7 @@ class ViewStateViewModel {
     fun onLastNameChanged(lastNameObs: InitialValueObservable<CharSequence>) {
         disposables.add(lastNameObs
             .skipInitialValue()
-            .debounce(DEBOUNCE_DELAY, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe { lastName ->
                 currentViewState.copy(
                     lastName = lastName.toString(),
@@ -87,7 +85,7 @@ class ViewStateViewModel {
     fun onAgeChanged(ageObs: InitialValueObservable<CharSequence>) {
         disposables.add(ageObs
             .skipInitialValue()
-            .debounce(DEBOUNCE_DELAY, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe { charSequence ->
                 currentViewState.copy(
                     age = charSequence.toString(),
@@ -132,8 +130,9 @@ class ViewStateViewModel {
         pollingAllUsers = Observable.interval(0, 2, TimeUnit.SECONDS)
             .flatMap { repository.getAllUsers() }
             .map { set -> set.map { it.toDomain() } }
-            .subscribe {
-                currentViewState.copy(users = it.map { it.toViewState() })
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { users ->
+                currentViewState.copy(users = users.map { it.toViewState() }).emit()
             }
     }
 
@@ -143,6 +142,7 @@ class ViewStateViewModel {
 
     private fun validateAge(ageStr: String): AgeValidation {
         return try {
+            if (ageStr.isEmpty()) return AgeValidation.EMPTY
             val age = ageStr.toInt()
             if (age in AGE_MIN..AGE_MAX) AgeValidation.OK else if (age < AGE_MIN) AgeValidation.TOO_YOUNG else AgeValidation.TOO_OLD
         } catch (nfe: NumberFormatException) {
@@ -151,19 +151,21 @@ class ViewStateViewModel {
     }
 
     private fun validateName(name: String): NameValidation {
-        if (name.isEmpty()) return NameValidation.OK // Ignore error
+        if (name.isEmpty()) return NameValidation.EMPTY // Ignore error
         if (name.length !in NAME_MIN..NAME_MAX) return NameValidation.WRONG_LENGTH
         if (!NAME_AUTHORIZED_CHARS.matches(name)) return NameValidation.WRONG_CHARS
         return NameValidation.OK
     }
 
     enum class NameValidation(val errorMessage: String? = null) {
+        EMPTY,
         OK,
         WRONG_LENGTH("Name length should be at least $NAME_MIN and at max $NAME_MAX"),
         WRONG_CHARS("Name contains bad characters")
     }
 
     enum class AgeValidation(val errorMessage: String? = null) {
+        EMPTY,
         OK,
         TOO_YOUNG("You're too young!"),
         TOO_OLD("You're too old!"),
