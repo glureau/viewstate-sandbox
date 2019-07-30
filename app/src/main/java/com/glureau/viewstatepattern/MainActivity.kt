@@ -2,7 +2,7 @@ package com.glureau.viewstatepattern
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.glureau.viewstatepattern.full.FullFragment
+import com.glureau.viewstatepattern.view_state.ViewStateFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         supportFragmentManager.beginTransaction()
-            .replace(android.R.id.content, FullFragment.newInstance())
+            .replace(android.R.id.content, ViewStateFragment.newInstance())
             .commit()
     }
 }
