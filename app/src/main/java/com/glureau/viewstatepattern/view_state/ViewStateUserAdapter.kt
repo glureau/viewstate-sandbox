@@ -10,7 +10,7 @@ import com.glureau.viewstatepattern.R
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class ViewStateUserAdapter : ListAdapter<ViewStateViewModel.UserViewState, ViewStateUserAdapter.UserViewStateViewHolder>(UserViewStateDiffCallback()) {
+class ViewStateUserAdapter : ListAdapter<UserViewState, ViewStateUserAdapter.UserViewStateViewHolder>(UserViewStateDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewStateViewHolder {
         val userView = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
@@ -26,11 +26,11 @@ class ViewStateUserAdapter : ListAdapter<ViewStateViewModel.UserViewState, ViewS
         }
     }
 
-    class UserViewStateDiffCallback : DiffUtil.ItemCallback<ViewStateViewModel.UserViewState>() {
-        override fun areItemsTheSame(oldItem: ViewStateViewModel.UserViewState, newItem: ViewStateViewModel.UserViewState) =
+    class UserViewStateDiffCallback : DiffUtil.ItemCallback<UserViewState>() {
+        override fun areItemsTheSame(oldItem: UserViewState, newItem: UserViewState) =
             oldItem.firstName == newItem.firstName && oldItem.lastName == newItem.lastName
 
-        override fun areContentsTheSame(oldItem: ViewStateViewModel.UserViewState, newItem: ViewStateViewModel.UserViewState) = oldItem == newItem
+        override fun areContentsTheSame(oldItem: UserViewState, newItem: UserViewState) = oldItem == newItem
     }
 
     data class UserViewStateViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),

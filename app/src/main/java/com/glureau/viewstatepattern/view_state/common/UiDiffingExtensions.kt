@@ -1,4 +1,4 @@
-package com.glureau.viewstatepattern.view_state
+package com.glureau.viewstatepattern.view_state.common
 
 import android.widget.EditText
 import com.google.android.material.textfield.TextInputLayout

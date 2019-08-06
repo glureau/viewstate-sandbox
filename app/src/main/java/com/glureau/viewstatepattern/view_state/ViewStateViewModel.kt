@@ -4,15 +4,15 @@ import com.glureau.viewstatepattern.common.api.FakeRepository
 import com.glureau.viewstatepattern.common.api.toDomain
 import com.glureau.viewstatepattern.common.api.toDto
 import com.glureau.viewstatepattern.common.domain.User
+import com.glureau.viewstatepattern.view_state.common.ViewStateProvider
 import com.jakewharton.rxbinding2.InitialValueObservable
-import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
 
-class ViewStateViewModel {
+class ViewStateViewModel : ViewStateProvider<ViewState>(ViewState()) {
 
     companion object {
         private const val NAME_MIN = 2
@@ -23,75 +23,33 @@ class ViewStateViewModel {
         private const val AGE_MAX = 120
     }
 
-    data class ViewState(
-        val firstName: String = "",
-        val firstNameError: String? = null,
-        val lastName: String = "",
-        val lastNameError: String? = null,
-        val age: String = "",
-        val ageError: String? = null,
-        val submitError: String? = null,
-        val users: List<UserViewState> = emptyList()
-    )
-
-    data class UserViewState(
-        val firstName: String,
-        val lastName: String,
-        val age: String
-    )
-
-    private fun User.toViewState() = UserViewState(firstName, lastName, age.toString())
-
     private val repository = FakeRepository()
 
-    private var currentViewState = ViewState()
-    private val relay = PublishRelay.create<ViewState>()
-    val viewState: Observable<ViewState> = relay
-        .doOnSubscribe { startPollingAllUsers() }
-        .doOnDispose { stopPollingAllUsers() }
-
-    private fun ViewState.emit() {
-        currentViewState = this
-        relay.accept(currentViewState)
-    }
-
-    private val disposables = CompositeDisposable()
-
     fun onFirstNameChanged(firstNameObs: InitialValueObservable<CharSequence>) {
-        disposables.add(firstNameObs
-            .skipInitialValue()
-            .filter { it.isNotEmpty() }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { firstName ->
-                currentViewState.copy(
-                    firstName = firstName.toString(),
-                    firstNameError = validateName(firstName.toString()).errorMessage
-                ).emit()
-            })
+        firstNameObs.skipAndSubscribe { name ->
+            currentViewState.copy(
+                firstName = name.toString(),
+                firstNameError = validateName(name.toString()).errorMessage
+            ).emit()
+        }
     }
 
     fun onLastNameChanged(lastNameObs: InitialValueObservable<CharSequence>) {
-        disposables.add(lastNameObs
-            .skipInitialValue()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { lastName ->
-                currentViewState.copy(
-                    lastName = lastName.toString(),
-                    lastNameError = validateName(lastName.toString()).errorMessage
-                ).emit()
-            })
+        lastNameObs.skipAndSubscribe { name ->
+            currentViewState.copy(
+                lastName = name.toString(),
+                lastNameError = validateName(name.toString()).errorMessage
+            ).emit()
+        }
     }
 
     fun onAgeChanged(ageObs: InitialValueObservable<CharSequence>) {
-        disposables.add(ageObs
-            .skipInitialValue()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { charSequence ->
-                currentViewState.copy(
-                    age = charSequence.toString(),
-                    ageError = validateAge(charSequence.toString()).errorMessage
-                ).emit()
-            })
+        ageObs.skipAndSubscribe { ageStr ->
+            currentViewState.copy(
+                age = ageStr.toString(),
+                ageError = validateAge(ageStr.toString()).errorMessage
+            ).emit()
+        }
     }
 
     fun onSubmit(clicks: Observable<Any>) {
@@ -125,18 +83,17 @@ class ViewStateViewModel {
 
     private var pollingAllUsers: Disposable? = null
     // TODO: Should react instantly to new user instead of reacting modulo 2s
-    private fun startPollingAllUsers() {
-        pollingAllUsers?.dispose()
-        pollingAllUsers = Observable.interval(0, 2, TimeUnit.SECONDS)
+    override fun onViewStateSubscribed() {
+        disposables.add(Observable.interval(0, 2, TimeUnit.SECONDS)
             .flatMap { repository.getAllUsers() }
             .map { set -> set.map { it.toDomain() } }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { users ->
                 currentViewState.copy(users = users.map { it.toViewState() }).emit()
-            }
+            })
     }
 
-    private fun stopPollingAllUsers() {
+    override fun onViewStateUnsubscribed() {
         pollingAllUsers?.dispose()
     }
 

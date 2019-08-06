@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.glureau.viewstatepattern.R
+import com.glureau.viewstatepattern.view_state.common.setTextIfDifferent
+import com.glureau.viewstatepattern.view_state.common.textChanges
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
@@ -40,7 +42,7 @@ class ViewStateFragment : Fragment() {
         viewModel.onAgeChanged(RxTextView.textChanges(age))
         viewModel.onSubmit(RxView.clicks(register))
 
-        var debugLastState: ViewStateViewModel.ViewState? = null
+        var debugLastState: ViewState? = null
         viewModel.viewState
             .autoDisposable(scopeProvider)
             .subscribe { state ->
