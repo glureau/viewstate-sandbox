@@ -3,11 +3,11 @@ package com.glureau.poc.register
 import com.glureau.poc.common.domain.User
 
 data class RegisterViewState(
-    val firstName: String = "",
+    val firstName: String? = null,
     val firstNameError: String? = null,
-    val lastName: String = "",
+    val lastName: String? = null,
     val lastNameError: String? = null,
-    val age: String = "",
+    val age: String? = null,
     val ageError: String? = null,
     val submitError: String? = null,
     val users: List<UserViewState> = emptyList()

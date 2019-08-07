@@ -7,10 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.get
 import com.glureau.poc.R
 import com.glureau.poc.common.extensions.setErrorIfDifferent
 import com.glureau.poc.common.extensions.setTextIfDifferent
 import com.glureau.poc.common.extensions.textChanges
+import com.glureau.poc.di.DaggerJetpackViewModelFactory
 import com.glureau.poc.di.appInjector
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
@@ -18,6 +21,7 @@ import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.uber.autodispose.autoDisposable
 import kotlinx.android.synthetic.main.fragment_main.*
 import javax.inject.Inject
+
 
 class RegisterFragment : Fragment() {
 
@@ -27,15 +31,20 @@ class RegisterFragment : Fragment() {
         fun newInstance() = RegisterFragment()
     }
 
-    @Inject
-    lateinit var viewModel: RegisterViewModel
-
     //TODO : Improve adapter
     private val adapter = RegisterUserAdapter()
 
+    @Inject
+    lateinit var viewModelFactory: DaggerJetpackViewModelFactory
+
+    // Provided by ViewModelProviders
+    lateinit var viewModel: RegisterViewModel
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         appInjector().inject(this)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get()
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -70,6 +79,7 @@ class RegisterFragment : Fragment() {
 
         recycler_view.adapter = adapter
 
+        //TODO: Use ViewEffect for that
         // Just a showcase on how easy a view debug can be with this pattern
         debug.setOnClickListener {
             Toast.makeText(context, debugLastState.toString(), Toast.LENGTH_LONG).show()
