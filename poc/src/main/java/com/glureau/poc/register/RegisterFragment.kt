@@ -7,45 +7,32 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
 import com.glureau.poc.R
+import com.glureau.poc.common.extensions.observeViewState
 import com.glureau.poc.common.extensions.setErrorIfDifferent
 import com.glureau.poc.common.extensions.setTextIfDifferent
 import com.glureau.poc.common.extensions.textChanges
-import com.glureau.poc.di.DaggerJetpackViewModelFactory
-import com.glureau.poc.di.appInjector
+import com.glureau.poc.di.viewModel
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
-import com.uber.autodispose.autoDisposable
 import kotlinx.android.synthetic.main.fragment_main.*
-import javax.inject.Inject
 
 
 class RegisterFragment : Fragment() {
-
-    private val scopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
 
     companion object {
         fun newInstance() = RegisterFragment()
     }
 
-    //TODO : Improve adapter
+    //TODO : Improve adapter + split in 2 fragments
     private val adapter = RegisterUserAdapter()
 
-    @Inject
-    lateinit var viewModelFactory: DaggerJetpackViewModelFactory
-
-    // Provided by ViewModelProviders
-    lateinit var viewModel: RegisterViewModel
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        appInjector().inject(this)
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get()
-        super.onCreate(savedInstanceState)
-    }
+    // Dagger not required anymore in Activity/Fragment ->
+    // + Only constructor injection! Yeah
+    // + No more `lazy val` BUT this one (it's lazy, instantiated in the onViewCreated))
+    // + AppInjector + AppInjectorProvider should not be necessary anymore.
+    // - Arch ViewModel providers could fail at runtime (Dagger is safer on this point)
+    private val viewModel by viewModel<RegisterViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_main, container, false)
@@ -61,21 +48,20 @@ class RegisterFragment : Fragment() {
         viewModel.onSubmit(RxView.clicks(register))
 
         var debugLastState: RegisterViewState? = null
-        viewModel.viewState
-            .autoDisposable(scopeProvider)
-            .subscribe { state ->
-                first_name.setTextIfDifferent(state.firstName)
-                first_name.setErrorIfDifferent(state.firstNameError)
-                last_name.setTextIfDifferent(state.lastName)
-                last_name.setErrorIfDifferent(state.lastNameError)
-                age.setTextIfDifferent(state.age)
-                age.setErrorIfDifferent(state.ageError)
-                error_message.setTextIfDifferent(state.submitError)
+        viewModel.observeViewState(this) { state ->
 
-                adapter.submitList(state.users)
+            first_name.setTextIfDifferent(state.firstName)
+            first_name.setErrorIfDifferent(state.firstNameError)
+            last_name.setTextIfDifferent(state.lastName)
+            last_name.setErrorIfDifferent(state.lastNameError)
+            age.setTextIfDifferent(state.age)
+            age.setErrorIfDifferent(state.ageError)
+            error_message.setTextIfDifferent(state.submitError)
 
-                debugLastState = state
-            }
+            adapter.submitList(state.users)
+
+            debugLastState = state
+        }
 
         recycler_view.adapter = adapter
 

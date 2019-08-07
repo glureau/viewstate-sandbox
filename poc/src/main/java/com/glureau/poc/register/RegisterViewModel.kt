@@ -8,7 +8,6 @@ import com.glureau.poc.common.pattern.ViewStateProvider
 import com.jakewharton.rxbinding2.InitialValueObservable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -59,7 +58,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onSubmit(clicks: Observable<Any>) {
-        disposables.add(clicks.subscribe {
+        addDisposable(clicks.subscribe {
             if (validateName(currentViewState.firstName) == NameValidation.OK &&
                 validateName(currentViewState.lastName) == NameValidation.OK &&
                 validateAge(currentViewState.age) == AgeValidation.OK
@@ -88,20 +87,16 @@ class RegisterViewModel @Inject constructor(
             ).toDto()
         )
 
-    private var pollingAllUsers: Disposable? = null
-    // TODO: Should react instantly to new user instead of reacting modulo 2s
+    // TODO: Separate code in 2 fragments
+    // TODO: Should react instantly to new user instead of reacting modulo 2s -> Update Repository
     override fun onViewStateSubscribed() {
-        disposables.add(Observable.interval(0, 2, TimeUnit.SECONDS)
+        addDisposable(Observable.interval(0, 2, TimeUnit.SECONDS)
             .flatMap { repository.getAllUsers() }
             .map { set -> set.map { it.toDomain() } }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { users ->
-                updateState { it.copy(users = users.map { it.toViewState() }) }
+                updateState { state -> state.copy(users = users.map { it.toViewState() }) }
             })
-    }
-
-    override fun onViewStateUnsubscribed() {
-        pollingAllUsers?.dispose()
     }
 
     private fun validateAge(ageStr: String?): AgeValidation {

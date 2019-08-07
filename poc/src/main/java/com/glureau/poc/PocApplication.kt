@@ -1,15 +1,15 @@
 package com.glureau.poc
 
 import android.app.Application
-import com.glureau.poc.di.AppInjectorProvider
+import com.glureau.poc.di.ViewModelFactoryComponent
 
-class PocApplication : Application(), AppInjectorProvider {
-    override fun appInjector() = appComponent
+class PocApplication : Application(), ViewModelFactoryComponent {
+
     private lateinit var appComponent: AppComponent
+    override fun getDaggerJetpackViewModelFactory() = appComponent.getDaggerJetpackViewModelFactory()
 
     override fun onCreate() {
         super.onCreate()
-        appComponent = DaggerAppComponent.builder()
-            .build()
+        appComponent = DaggerAppComponent.builder().build()
     }
 }
