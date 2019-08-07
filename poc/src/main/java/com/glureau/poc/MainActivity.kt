@@ -1,8 +1,9 @@
 package com.glureau.poc
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.glureau.poc.register.RegisterFragment
+import com.glureau.poc.users.UsersFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,7 +12,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         supportFragmentManager.beginTransaction()
-            .replace(android.R.id.content, RegisterFragment.newInstance())
+            .replace(R.id.container_register, RegisterFragment.newInstance())
+            .replace(R.id.container_users, UsersFragment.newInstance())
             .commit()
     }
 }

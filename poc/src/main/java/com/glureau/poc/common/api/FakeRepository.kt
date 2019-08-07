@@ -1,5 +1,6 @@
 package com.glureau.poc.common.api
 
+import dagger.Reusable
 import io.reactivex.Completable
 import io.reactivex.Observable
 import java.io.IOException
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.random.Random
 
+@Reusable
 class FakeRepository @Inject constructor() {
 
     private val knownUsers = mutableSetOf<UserDto>()

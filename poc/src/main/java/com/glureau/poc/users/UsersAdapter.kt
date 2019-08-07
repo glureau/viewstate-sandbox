@@ -1,4 +1,4 @@
-package com.glureau.poc.register
+package com.glureau.poc.users
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +10,7 @@ import com.glureau.poc.R
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class RegisterUserAdapter : ListAdapter<UserViewState, RegisterUserAdapter.UserViewStateViewHolder>(
+class UsersAdapter : ListAdapter<UserViewState, UsersAdapter.UserViewStateViewHolder>(
     UserViewStateDiffCallback()
 ) {
 
