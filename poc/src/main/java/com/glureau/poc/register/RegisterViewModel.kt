@@ -1,17 +1,21 @@
-package com.glureau.poc.view_state
+package com.glureau.poc.register
 
 import com.glureau.poc.common.api.FakeRepository
 import com.glureau.poc.common.api.toDomain
 import com.glureau.poc.common.api.toDto
 import com.glureau.poc.common.domain.User
-import com.glureau.poc.view_state.common.ViewStateProvider
+import com.glureau.poc.common.pattern.ViewStateProvider
 import com.jakewharton.rxbinding2.InitialValueObservable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class ViewStateViewModel : ViewStateProvider<ViewState>(ViewState()) {
+class RegisterViewModel @Inject constructor(
+    private val repository: FakeRepository
+) :
+    ViewStateProvider<RegisterViewState>(RegisterViewState()) {
 
     companion object {
         private const val NAME_MIN = 2
@@ -21,8 +25,6 @@ class ViewStateViewModel : ViewStateProvider<ViewState>(ViewState()) {
         private const val AGE_MIN = 18
         private const val AGE_MAX = 120
     }
-
-    private val repository = FakeRepository()
 
     fun onFirstNameChanged(firstNameObs: InitialValueObservable<CharSequence>) {
         firstNameObs.skipAndSubscribe { name ->

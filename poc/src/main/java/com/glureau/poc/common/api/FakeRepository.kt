@@ -5,9 +5,10 @@ import io.reactivex.Observable
 import java.io.IOException
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlin.random.Random
 
-class FakeRepository {
+class FakeRepository @Inject constructor() {
 
     private val knownUsers = mutableSetOf<UserDto>()
 

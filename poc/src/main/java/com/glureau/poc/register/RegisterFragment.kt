@@ -1,4 +1,4 @@
-package com.glureau.poc.view_state
+package com.glureau.poc.register
 
 import android.os.Bundle
 import android.util.Log
@@ -8,26 +8,35 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.glureau.poc.R
-import com.glureau.poc.view_state.common.setTextIfDifferent
-import com.glureau.poc.view_state.common.textChanges
+import com.glureau.poc.common.extensions.setErrorIfDifferent
+import com.glureau.poc.common.extensions.setTextIfDifferent
+import com.glureau.poc.common.extensions.textChanges
+import com.glureau.poc.di.appInjector
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.uber.autodispose.autoDisposable
 import kotlinx.android.synthetic.main.fragment_main.*
+import javax.inject.Inject
 
-class ViewStateFragment : Fragment() {
+class RegisterFragment : Fragment() {
 
     private val scopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
 
     companion object {
-        fun newInstance() = ViewStateFragment()
+        fun newInstance() = RegisterFragment()
     }
 
-    // TODO: No DI = cannot be easily tested (but UI has NO LOGIC, so no test required)
-    //  + highly coupled (don't care here, we know why we'll use Dagger)
-    private val viewModel = ViewStateViewModel()
-    private val adapter = ViewStateUserAdapter()
+    @Inject
+    lateinit var viewModel: RegisterViewModel
+
+    //TODO : Improve adapter
+    private val adapter = RegisterUserAdapter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        appInjector().inject(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_main, container, false)
@@ -42,17 +51,18 @@ class ViewStateFragment : Fragment() {
         viewModel.onAgeChanged(RxTextView.textChanges(age))
         viewModel.onSubmit(RxView.clicks(register))
 
-        var debugLastState: ViewState? = null
+        var debugLastState: RegisterViewState? = null
         viewModel.viewState
             .autoDisposable(scopeProvider)
             .subscribe { state ->
                 first_name.setTextIfDifferent(state.firstName)
-                first_name.error = state.firstNameError
+                first_name.setErrorIfDifferent(state.firstNameError)
                 last_name.setTextIfDifferent(state.lastName)
-                last_name.error = state.lastNameError
+                last_name.setErrorIfDifferent(state.lastNameError)
                 age.setTextIfDifferent(state.age)
-                age.error = state.ageError
-                error_message.text = state.submitError
+                age.setErrorIfDifferent(state.ageError)
+                error_message.setTextIfDifferent(state.submitError)
+
                 adapter.submitList(state.users)
 
                 debugLastState = state

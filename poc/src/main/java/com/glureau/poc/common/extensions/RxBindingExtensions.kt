@@ -1,4 +1,4 @@
-package com.glureau.poc.view_state.common
+package com.glureau.poc.common.extensions
 
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding2.InitialValueObservable

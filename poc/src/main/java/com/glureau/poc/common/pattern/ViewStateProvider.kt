@@ -1,4 +1,4 @@
-package com.glureau.poc.view_state.common
+package com.glureau.poc.common.pattern
 
 import com.jakewharton.rxbinding2.InitialValueObservable
 import com.jakewharton.rxrelay2.BehaviorRelay

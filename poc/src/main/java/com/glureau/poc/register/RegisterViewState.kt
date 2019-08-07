@@ -1,8 +1,8 @@
-package com.glureau.poc.view_state
+package com.glureau.poc.register
 
 import com.glureau.poc.common.domain.User
 
-data class ViewState(
+data class RegisterViewState(
     val firstName: String = "",
     val firstNameError: String? = null,
     val lastName: String = "",

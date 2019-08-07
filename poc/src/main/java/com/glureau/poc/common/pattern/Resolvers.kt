@@ -1,4 +1,4 @@
-package com.glureau.poc.view_state.common
+package com.glureau.poc.common.pattern
 
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
