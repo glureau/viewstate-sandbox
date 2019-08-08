@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">poc</string>
+    <string name="app_name">POC ViewState/Effects</string>
+    <string name="io_error">Network issues, please retry when you\'re connected.</string>
+    <string name="generic_error">An unexpected issues occurred, we\'re doing our best to fix this problem ASAP.</string>
+    <string name="retry">Retry</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="age">Age</string>
+    <string name="register">Register</string>
 </resources>

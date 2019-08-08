@@ -1,6 +1,7 @@
 package com.glureau.poc
 
 import android.app.Application
+import com.glureau.poc.di.AppModule
 import com.glureau.poc.di.ViewModelFactoryComponent
 
 class PocApplication : Application(), ViewModelFactoryComponent {
@@ -10,6 +11,8 @@ class PocApplication : Application(), ViewModelFactoryComponent {
 
     override fun onCreate() {
         super.onCreate()
-        appComponent = DaggerAppComponent.builder().build()
+        appComponent = DaggerAppComponent.builder()
+            .appModule(AppModule(this))
+            .build()
     }
 }

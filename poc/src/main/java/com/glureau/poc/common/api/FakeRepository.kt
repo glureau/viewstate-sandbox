@@ -32,13 +32,13 @@ class FakeRepository @Inject constructor() {
     }
 
     fun getAllUsers(): Observable<Set<UserDto>> {
-        return when (Random.nextInt(0, 2)) {
-            0, 1, 2 -> Observable.just(knownUsers.toSet()).delay(200, TimeUnit.MILLISECONDS)
-            3 -> Observable.error<Set<UserDto>>(IOException("Cannot reach server")).delay(500, TimeUnit.MILLISECONDS)
-            else -> Observable.error<Set<UserDto>>(CancellationException("Connection reset")).delay(
+        return when (Random.nextInt(0, 50)) {
+            0 -> Observable.error<Set<UserDto>>(IOException("Cannot reach server")).delay(500, TimeUnit.MILLISECONDS)
+            1, 2, 3, 4, 5 -> Observable.error<Set<UserDto>>(CancellationException("Connection reset")).delay(
                 2000,
                 TimeUnit.MILLISECONDS
             )
+            else -> Observable.just(knownUsers.toSet()).delay(200, TimeUnit.MILLISECONDS)
         }
     }
 }

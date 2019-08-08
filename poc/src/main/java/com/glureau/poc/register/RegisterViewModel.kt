@@ -23,7 +23,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onFirstNameChanged(firstNameObs: InitialValueObservable<CharSequence>) {
-        firstNameObs.skipAndSubscribe { name ->
+        firstNameObs.skipAndObserves { name ->
             updateState {
                 it.copy(
                     firstName = name.toString(),
@@ -34,7 +34,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onLastNameChanged(lastNameObs: InitialValueObservable<CharSequence>) {
-        lastNameObs.skipAndSubscribe { name ->
+        lastNameObs.skipAndObserves { name ->
             updateState {
                 it.copy(
                     lastName = name.toString(),
@@ -45,7 +45,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onAgeChanged(ageObs: InitialValueObservable<CharSequence>) {
-        ageObs.skipAndSubscribe { ageStr ->
+        ageObs.skipAndObserves { ageStr ->
             updateState {
                 it.copy(
                     age = ageStr.toString(),

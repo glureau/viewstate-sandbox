@@ -16,7 +16,7 @@
         <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="First name"/>
+                android:hint="@string/first_name"/>
     </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -31,7 +31,7 @@
         <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Last name"/>
+                android:hint="@string/last_name"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <EditText
@@ -40,14 +40,14 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:ems="10"
-            android:hint="Age"
+            android:hint="@string/age"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/last_name"/>
 
     <Button
             android:id="@+id/register"
-            android:text="Register"
+            android:text="@string/register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/age"
